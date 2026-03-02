@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Testes - Clínica nas Nuvens</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 40px;
+    }
+
+    .panel {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .response {
+      margin-top: 25px;
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <h1>🔬 Painel de Testes API</h1>
+
+    <label>Endpoint</label>
+    <input type="text" id="endpoint" placeholder="/agenda/lista" />
+
+    <label>Método</label>
+    <select id="method">
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+    </select>
+
+    <label>Body (JSON - apenas para POST)</label>
+    <textarea id="body" placeholder='{"exemplo": "valor"}'></textarea>
+
+    <button onclick="callAPI()">Enviar Requisição</button>
+
+    <div class="status" id="status"></div>
+    <div class="response" id="response"></div>
+  </div>
+
+  <script>
+    async function callAPI() {
+      const endpoint = document.getElementById('endpoint').value;
+      const method = document.getElementById('method').value;
+      const body = document.getElementById('body').value;
+      const statusDiv = document.getElementById('status');
+      const responseDiv = document.getElementById('response');
+
+      if (!endpoint) {
+        alert("Informe um endpoint.");
+        return;
+      }
+
+      statusDiv.innerHTML = "⏳ Carregando...";
+      responseDiv.innerHTML = "";
+
+      try {
+        const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(endpoint)}`, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: method !== 'GET' ? body : undefined
+        });
+
+        const data = await response.json();
+
+        statusDiv.innerHTML = `Status: ${response.status}`;
+        responseDiv.innerHTML = JSON.stringify(data, null, 2);
+
+      } catch (error) {
+        statusDiv.innerHTML = "Erro na requisição";
+        responseDiv.innerHTML = error;
+      }
+    }
+  </script>
+
+</body>
+</html>
