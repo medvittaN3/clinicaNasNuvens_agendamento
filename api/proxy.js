@@ -1,5 +1,11 @@
 const baseURL = 'https://api.clinicanasnuvens.com.br';
 
+const allowedEndpoints = [
+  '/executor-agenda/lista',
+  '/agenda/profissional',
+  '/executor-agenda/disponibilidade',
+];
+
 export default async function handler(req, res) {
   const TOKEN = process.env.CLINICA_TOKEN;
   const CID = process.env.CLINICA_CID;
@@ -12,6 +18,14 @@ export default async function handler(req, res) {
 
   if (!endpoint.startsWith('/')) {
     return res.status(400).json({ error: 'Endpoint inválido' });
+  }
+
+  const isAllowed = allowedEndpoints.some(e =>
+    endpoint.startsWith(e)
+  );
+
+  if (!isAllowed) {
+    return res.status(403).json({ error: 'Endpoint não permitido' });
   }
 
   const url = `${baseURL}${endpoint}`;
